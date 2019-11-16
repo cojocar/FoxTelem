@@ -17,8 +17,10 @@
     <target name="jar">
         <mkdir dir="build/jar"/>
         <jar destfile="build/jar/FoxTelem.jar" basedir="build/classes">
+            <zipgroupfileset dir="lib" includes="*.jar"/>
             <manifest>
                 <attribute name="Main-Class" value="FoxTelemMain"/>
+                <attribute name="Class-Path" value="." />
             </manifest>
         </jar>
     </target>
