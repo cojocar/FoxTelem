@@ -526,8 +526,8 @@ public class FoxTelemMain {
 			; // Failure to check the version is not fatal.  Ignore and hope the user got it right
 		}
 		
-		ProgressPanel initProgress = new ProgressPanel(MainWindow.frame, "Initializing AMSAT FoxTelem, please wait ...", false);
-		initProgress.setVisible(true);
+
+
 		int arg = 0;
 		while (arg < args.length) {
 			if (args[arg].startsWith("-")) { // this is a switch
@@ -543,6 +543,9 @@ public class FoxTelemMain {
 				Log.println("Command Line Switch: STARTED");
 				Config.startButtonPressed = true;
 			}
+			if (args[arg].equalsIgnoreCase("-no-gui")) {
+				Config.headlessEnabled = true;
+			}
 			
 			} else {
 				// we have no more switches, so start reading command line paramaters
@@ -551,11 +554,19 @@ public class FoxTelemMain {
 			}
 			arg++;
 		}
-		
+
+		ProgressPanel initProgress = null;
 		if (logFileDir == null)
 			Config.homeDirectory = System.getProperty("user.home") + File.separator + ".FoxTelem";
 		else
 			Config.homeDirectory = logFileDir;
+
+		if (Config.hasGUI()) {
+			initProgress = new ProgressPanel(MainWindow.frame, "Initializing AMSAT FoxTelem, please wait ...", false);
+			initProgress.setVisible(true);
+		} else {
+			Log.showGuiDialogs = false;
+		}
 
 		FoxTelemMain m = new FoxTelemMain();
 		if (Config.missing()) {
@@ -577,8 +588,14 @@ public class FoxTelemMain {
 		Log.println("LogFileDir is:" + Config.logFileDirectory);
 
 		
-		invokeGUI();
-		initProgress.updateProgress(100);
+		if (Config.hasGUI()) {
+			invokeGUI();
+			initProgress.updateProgress(100);
+			return;
+		}
+
+		Log.println("Running in headless mode!");
+
 	}
 
 	public void initialRun() {

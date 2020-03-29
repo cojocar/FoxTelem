@@ -68,6 +68,9 @@ public class PayloadStore extends FoxPayloadStore implements Runnable {
 	SatMeasurementStore[] measurementStore;
 	
 	public PayloadStore() {
+		if (!Config.hasGUI()) {
+			Log.println("Starting loading payload!");
+		}
 		payloadQueue = new SortedFramePartArrayList(INITIAL_QUEUE_SIZE);
 		measurementQueue = new SortedMeasurementArrayList(INITIAL_QUEUE_SIZE);
 		ArrayList<Spacecraft> sats = Config.satManager.getSpacecraftList();
@@ -99,8 +102,11 @@ public class PayloadStore extends FoxPayloadStore implements Runnable {
 			}
 			
 		}
-		Config.fileProgress = new ProgressPanel(MainWindow.frame, loadMessage, false);
-		Config.fileProgress.setVisible(true);
+
+		if (Config.hasGUI()) {
+			Config.fileProgress = new ProgressPanel(MainWindow.frame, loadMessage, false);
+			Config.fileProgress.setVisible(true);
+		}
 		
 		for (int s=0; s<sats.size(); s++) {
 			
@@ -118,10 +124,15 @@ public class PayloadStore extends FoxPayloadStore implements Runnable {
 				if (sats.get(s).isFox1())
 					if (((FoxSpacecraft)sats.get(s)).hasCamera()) pictureStore[s] = new SatPictureStore(sats.get(s).foxId);;
 				measurementStore[s] = new SatMeasurementStore(sats.get(s).foxId);
-				Config.fileProgress.updateProgress(100 * s / sats.size());
+				if (Config.hasGUI()) {
+					Config.fileProgress.updateProgress(100 * s / sats.size());
+				}
 			
 		}
 		loaded = true;
+		if (!Config.hasGUI()) {
+			Log.println("Finished loading payload!");
+		}
 	}
 	
 	/**

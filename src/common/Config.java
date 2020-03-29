@@ -289,8 +289,10 @@ public class Config {
 	static public int timeUntilTableSegOffloaded = 60*1000;
 	static public boolean turboWavFilePlayback = false;
 	static public boolean debugDDE = false;
-	
-	
+
+	// V1.09
+	static public boolean headlessEnabled = false;
+
 	public static boolean missing() { 
 		File aFile = new File(Config.homeDirectory + File.separator + propertiesFileName );
 		if(!aFile.exists()){
@@ -523,6 +525,10 @@ public class Config {
 		return false;
 	}
 
+	public static boolean hasGUI() {
+		return !headlessEnabled;
+	}
+
 	public static boolean isLinuxOs() {
 		if (OS == LINUX || OS == RASPBERRY_PI) {
 			return true;
@@ -742,6 +748,9 @@ public class Config {
 		properties.setProperty("timeUntilTableSegOffloaded", Integer.toString(timeUntilTableSegOffloaded));
 		properties.setProperty("turboWavFilePlayback", Boolean.toString(turboWavFilePlayback));
 
+		// V1.09
+		//properties.setProperty("headlessEnabled", Boolean.toString(headlessEnabled));
+
 		store();
 	}
 	
@@ -932,6 +941,9 @@ public class Config {
 		debugSegs = Boolean.parseBoolean(getProperty("debugSegs"));
 		timeUntilTableSegOffloaded = Integer.parseInt(getProperty("timeUntilTableSegOffloaded"));
 		turboWavFilePlayback = Boolean.parseBoolean(getProperty("turboWavFilePlayback"));
+
+		// V1.09
+		//headlessEnabled = Boolean.parseBoolean(getProperty("headlessEnabled"));
 
 		} catch (NumberFormatException nf) {
 			catchException();
