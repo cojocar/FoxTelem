@@ -16,7 +16,10 @@ import javax.swing.UIManager;
 
 import common.Config;
 import common.Log;
+
+import common.Spacecraft;
 //import decoder.FoxDecoder;
+import telemStream.TelemetryPipe;
 
 /**
  * FOX 1 Telemetry Decoder
@@ -529,6 +532,7 @@ public class FoxTelemMain {
 
 
 		int arg = 0;
+		String satTrackMe = null;
 		while (arg < args.length) {
 			if (args[arg].startsWith("-")) { // this is a switch
 			if ((args[arg].equalsIgnoreCase("-h")) || (args[arg].equalsIgnoreCase("-help")) || (args[arg].equalsIgnoreCase("--help"))) {
@@ -545,6 +549,16 @@ public class FoxTelemMain {
 			}
 			if (args[arg].equalsIgnoreCase("-no-gui")) {
 				Config.headlessEnabled = true;
+			}
+
+			if (args[arg].equalsIgnoreCase("-sat")) {
+				try {
+					satTrackMe = args[arg+1];
+					++arg;
+				} catch (ArrayIndexOutOfBoundsException e) {
+					Log.println("Missing parameter to -sat");
+					System.exit(1);
+				}
 			}
 			
 			} else {
@@ -596,6 +610,39 @@ public class FoxTelemMain {
 
 		Log.println("Running in headless mode!");
 
+		int trackedSatId = -1;
+		for (int i = 0; i < Config.satManager.spacecraftList.size(); ++i) {
+			Spacecraft sat = Config.satManager.spacecraftList.get(i);
+			Log.println("Available satellites: " + sat.user_keps_name);
+			if (satTrackMe != null && satTrackMe.equalsIgnoreCase(sat.user_keps_name)) {
+				trackedSatId = i;
+				sat.user_track = true;
+			} else {
+				sat.user_track = false;
+			}
+		}
+
+		if (trackedSatId < 0) {
+			Log.println("Failed to set satellite");
+			System.exit(1);
+		}
+
+		m.initPushTelemetryInPipe(trackedSatId);
+	}
+
+	private void initPushTelemetryInPipe(int trackedSatId)
+	{
+		// set this to see that the satellite manager is dumping info
+		Config.debugSignalFinder = true;
+
+		// this will spawn a thread that will update the position of the
+		// tracked sattelites.
+		Config.initSatelliteManager();
+
+		TelemetryPipe telemetryPipe = null;
+		telemetryPipe = new TelemetryPipe(trackedSatId, "foxtelem-telemetry-pipe");
+		Thread telemetryPipeThread = new Thread(telemetryPipe);
+		telemetryPipeThread.start();
 	}
 
 	public void initialRun() {
