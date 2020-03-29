@@ -1,4 +1,4 @@
-package telemStream;
+package predict;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,7 +10,7 @@ import common.DesktopApi;
 import common.Spacecraft;
 import telemetry.FramePart;
 
-public class TelemetryPipe implements Runnable {
+public class DirectionPipe implements Runnable {
 
 	String pipePath;
 	int trackedSatId = -1;
@@ -19,7 +19,7 @@ public class TelemetryPipe implements Runnable {
 	/* Named pipe should exist, this code path does not take care of creating
 	 * the pipe. Use mkfifo (on linux) to create such a pipe.
 	 */
-	public TelemetryPipe (int trackedSatId, String pipeName) {
+	public DirectionPipe (int trackedSatId, String pipeName) {
 		this.pipePath = getArchPipeNamePath(pipeName);
 		this.trackedSatId = trackedSatId;
 	}
@@ -39,11 +39,11 @@ public class TelemetryPipe implements Runnable {
 		try {
 			this.out = new FileOutputStream(getArchPipeNamePath(this.pipePath));
 		} catch (FileNotFoundException e) {
-			Log.println("TelemetryPipeThread failed to open pipe");
+			Log.println("DirectionPipeThread failed to open pipe");
 			return;
 		}
 
-		Log.println("TelemetryPipeThread START");
+		Log.println("DirectionPipeThread START");
 		Log.println("station lat, lon: " + Config.latitude + " " + Config.longitude);
 		while (true) {
 			try {
@@ -59,7 +59,7 @@ public class TelemetryPipe implements Runnable {
 				break;
 			}
 		}
-		Log.println("TelemetryPipeThread END");
+		Log.println("DirectionPipeThread END");
 	}
 
 	private String getPositionNow(int trackedSatId) {

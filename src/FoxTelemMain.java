@@ -19,7 +19,7 @@ import common.Log;
 
 import common.Spacecraft;
 //import decoder.FoxDecoder;
-import telemStream.TelemetryPipe;
+import predict.DirectionPipe;
 
 /**
  * FOX 1 Telemetry Decoder
@@ -627,10 +627,10 @@ public class FoxTelemMain {
 			System.exit(1);
 		}
 
-		m.initPushTelemetryInPipe(trackedSatId);
+		m.initPushDirectionInPipe(trackedSatId);
 	}
 
-	private void initPushTelemetryInPipe(int trackedSatId)
+	private void initPushDirectionInPipe(int trackedSatId)
 	{
 		// set this to see that the satellite manager is dumping info
 		Config.debugSignalFinder = true;
@@ -639,10 +639,10 @@ public class FoxTelemMain {
 		// tracked sattelites.
 		Config.initSatelliteManager();
 
-		TelemetryPipe telemetryPipe = null;
-		telemetryPipe = new TelemetryPipe(trackedSatId, "foxtelem-telemetry-pipe");
-		Thread telemetryPipeThread = new Thread(telemetryPipe);
-		telemetryPipeThread.start();
+		DirectionPipe directionPipe = new DirectionPipe(trackedSatId,
+				"foxtelem-direction-pipe");
+		Thread directionPipeThread = new Thread(directionPipe);
+		directionPipeThread.start();
 	}
 
 	public void initialRun() {
